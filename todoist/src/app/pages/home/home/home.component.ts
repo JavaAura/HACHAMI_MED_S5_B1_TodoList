@@ -3,7 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TaskService } from '../../../services/task.service';
 import { CategoryService } from '../../../services/category.service';
 import { Task } from '../../../models/task.interface';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
+import { Category } from '../../../models/category.interface';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -12,16 +14,45 @@ import { Observable } from 'rxjs';
 })
 export class HomeComponent implements OnInit {
   tasks$: Observable<Task[]>;
+  categories$: Observable<Category[]>;
   taskForm!: FormGroup;
   isModalOpen = false;
   editingTaskId: string | null = null;
+  searchQuery: string = '';
+  statusFilter: string = 'all';
+  private searchSubject = new BehaviorSubject<string>('');
+  private statusSubject = new BehaviorSubject<string>('all');
 
   constructor(
     private taskService: TaskService,
     private categoryService: CategoryService,
     private fb: FormBuilder
   ) {
-    this.tasks$ = this.taskService.getTasks();
+    this.tasks$ = combineLatest([
+      this.taskService.getTasks(),
+      this.searchSubject,
+      this.statusSubject
+    ]).pipe(
+      map(([tasks, search, status]) => {
+        return tasks
+          .filter(task => {
+            if (status !== 'all' && task.status !== status) {
+              return false;
+            }
+
+            if (search) {
+              const searchLower = search.toLowerCase();
+              return (
+                task.title.toLowerCase().includes(searchLower) ||
+                (task.description || '').toLowerCase().includes(searchLower)
+              );
+            }
+
+            return true;
+          });
+      })
+    );
+    this.categories$ = this.categoryService.getCategories();
     console.log(this.tasks$);
 
     this.initForm();
@@ -36,7 +67,7 @@ export class HomeComponent implements OnInit {
       dueDate: ['', Validators.required],
       priority: ['medium', Validators.required],
       status: ['not_started', Validators.required],
-      categoryId: ['']
+      categoryId: ['', Validators.required]
     });
   }
 
@@ -140,5 +171,19 @@ export class HomeComponent implements OnInit {
       default:
         return '#ef4444'; // red-500
     }
+  }
+
+  getCategoryName(categoryId: string | null, categories: any[]): string {
+    if (!categoryId) return 'No Category';
+    const category = categories.find(c => c.id === categoryId);
+    return category ? category.name : 'No Category';
+  }
+
+  onSearch(query: string) {
+    this.searchSubject.next(query);
+  }
+
+  onStatusFilter(status: string) {
+    this.statusSubject.next(status);
   }
 }

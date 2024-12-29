@@ -1,0 +1,74 @@
+<body class="font-montserrat text-sm bg-white dark:bg-zinc-900 " >
+  <div class="flex min-h-screen  2xl:max-w-screen-2xl 2xl:mx-auto 2xl:border-x-2 2xl:border-gray-200 dark:2xl:border-zinc-700 ">
+      <!-- Left Sidebar -->
+
+      <app-sidebar></app-sidebar>
+
+      <!-- /Left Sidebar -->
+
+      <main class="flex-1 py-10 px-5 sm:px-10">
+        <div class="flex flex-row flex-wrap justify-between gap-6">
+          <!-- Tâches accomplies -->
+          <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-6 flex-1 h-48 flex flex-col justify-between">
+            <div class="flex flex-col">
+              <h3 class="text-green-600 dark:text-green-400 font-semibold text-lg">Tâches accomplies</h3>
+              <div class="text-4xl font-bold text-green-700 dark:text-green-300 mt-4">
+                {{completedTasksPercentage}}%
+              </div>
+            </div>
+            <div class="text-green-600/70 dark:text-green-400/70 text-sm">
+              {{completedTasksCount}} tâches terminées
+            </div>
+          </div>
+
+          <!-- Tâches en cours -->
+          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 flex-1 h-48 flex flex-col justify-between">
+            <div class="flex flex-col">
+              <h3 class="text-blue-600 dark:text-blue-400 font-semibold text-lg">Tâches en cours</h3>
+              <div class="text-4xl font-bold text-blue-700 dark:text-blue-300 mt-4">
+                {{pendingTasksPercentage}}%
+              </div>
+            </div>
+            <div class="text-blue-600/70 dark:text-blue-400/70 text-sm">
+              {{pendingTasksCount}} tâches en attente
+            </div>
+          </div>
+
+          <!-- Tâches en retard -->
+          <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-6 flex-1 h-48 flex flex-col justify-between">
+            <div class="flex flex-col">
+              <h3 class="text-red-600 dark:text-red-400 font-semibold text-lg">Tâches en retard</h3>
+              <div class="text-4xl font-bold text-red-700 dark:text-red-300 mt-4">
+                {{overdueTasks}}
+              </div>
+            </div>
+            <div class="text-red-600/70 dark:text-red-400/70 text-sm">
+              Nécessite votre attention
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="mt-16 flex flex-row gap-8">
+          <div class="bg-white dark:bg-zinc-800 rounded-lg p-6 shadow-sm w-1/2 h-[400px]">
+            <canvas id="tasksChart"></canvas>
+          </div>
+
+          <div class="bg-white dark:bg-zinc-800 rounded-lg p-6 shadow-sm w-1/2 h-[400px]">
+            <canvas id="statsChart"></canvas>
+          </div>
+        </div>
+      </main>
+
+
+
+      <!-- /Right Sidebar -->
+
+
+  </div>
+
+
+</body>
+
+<!-- </html> -->
+
