@@ -63,4 +63,9 @@ export class CategoryService {
 
     this.saveCategories(updatedCategories);
   }
+
+  getCategory(id: string): Category | undefined {
+    const currentCategories = this.loadCategories();
+    return currentCategories.find(category => category.id === id);
+  }
 }
