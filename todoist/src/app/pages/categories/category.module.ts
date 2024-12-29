@@ -3,19 +3,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { SharedModule } from '../../shared/shared.module';
-import { HomeComponent } from './home/home.component';
+import { CategoryComponent } from './category/category.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: HomeComponent
+    component: CategoryComponent
   }
 ];
 
 
 @NgModule({
   declarations: [
-    HomeComponent
+    CategoryComponent
   ],
   imports: [
     CommonModule,
@@ -25,7 +25,7 @@ const routes: Routes = [
     ReactiveFormsModule
   ],
   exports: [
-    HomeComponent
+    CategoryComponent
   ]
 })
-export class HomeModule { }
+export class CategoryModule { }

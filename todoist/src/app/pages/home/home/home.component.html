@@ -1,0 +1,177 @@
+<body class="font-montserrat text-sm bg-white dark:bg-zinc-900">
+  <div class="flex min-h-screen 2xl:max-w-screen-2xl 2xl:mx-auto 2xl:border-x-2 2xl:border-gray-200 dark:2xl:border-zinc-700">
+    <app-sidebar></app-sidebar>
+
+    <main class="flex-1 py-10 px-5 sm:px-10">
+      <section class="mt-9">
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+          <span class="font-semibold text-gray-700 text-base dark:text-white">Tasks</span>
+          <div class="flex items-center space-x-2">
+            <button (click)="openTaskModal()" class="focus:outline-none">
+              <svg class="h-7 w-7 rounded-full border p-1 hover:border-red-600 hover:fill-red-600 dark:fill-white dark:hover:fill-red-600 cursor-pointer"
+                   xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 4a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2h-6v6a1 1 0 1 1-2 0v-6H5a1 1 0 1 1 0-2h6V5a1 1 0 0 1 1-1z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tasks List -->
+        <div class="mt-6 w-full space-y-4">
+          <ng-container *ngIf="tasks$ | async as tasks">
+              <!-- Show message if no categories -->
+              <div *ngIf="tasks.length === 0" class="text-center py-4 text-gray-500 dark:text-gray-400">
+                  No tasks yet. Click the + button to add one.
+              </div>
+
+              <!-- Categories list -->
+              <div *ngFor="let task of tasks"
+                   [ngClass]="getPriorityColor(task.priority)"
+                   class="relative h-[120px] rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
+                   [style.border-left-width]="'6px'"
+                   [style.border-left-color]="getStatusColor(task.status)">
+                  <div class="absolute inset-[2px] bg-white dark:bg-zinc-900 rounded-xl">
+                      <div class="absolute top-0 h-full w-full p-3 flex flex-col justify-between">
+                          <!-- Header Section -->
+                          <div class="mb-4">
+                              <div class="flex items-center justify-between">
+                                  <h2 class="text-gray-900 dark:text-white text-xl font-semibold">{{ task.title }}</h2>
+                                  <span [class]="getStatusBadgeClass(task.status)"
+                                        class="px-2 py-1 rounded-full text-xs">
+                                      {{ task.status | titlecase }}
+                                  </span>
+                              </div>
+                              <p class="text-gray-600 dark:text-gray-300 mt-1">{{ task.description }}</p>
+                          </div>
+
+                          <!-- Time Section -->
+                          <div class="flex items-center justify-between">
+                              <div class="flex items-center gap-2">
+                                  <svg class="w-5 h-5 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/>
+                                  </svg>
+                                  <span class="text-purple-300 text-sm">Due: {{ task.dueDate | date:'MMM d, y, h:mm a' }}</span>
+                              </div>
+                              <div class="flex items-center gap-2">
+                                  <button (click)="openTaskModal(task)"
+                                      class="text-gray-400 hover:text-blue-600 transition-colors">
+                                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                      </svg>
+                                  </button>
+                                  <button (click)="deleteTask(task.id!)"
+                                      class="text-gray-400 hover:text-red-600 transition-colors">
+                                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                  </button>
+                              </div>
+                          </div>
+
+                      </div>
+                  </div>
+              </div>
+          </ng-container>
+      </div>
+      </section>
+
+      <!-- Task Modal -->
+      <div *ngIf="isModalOpen" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-40"></div>
+
+      <div *ngIf="isModalOpen" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-screen items-center justify-center p-4">
+          <div class="relative transform overflow-hidden rounded-lg bg-white dark:bg-zinc-900 px-6 pb-6 pt-5 shadow-xl transition-all sm:my-8 w-full max-w-4xl sm:p-8">
+            <!-- Close button -->
+            <div class="absolute right-0 top-0 pr-4 pt-4">
+              <button (click)="closeTaskModal()" class="rounded-md text-gray-400 hover:text-gray-500">
+                <span class="sr-only">Close</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Form -->
+            <form [formGroup]="taskForm" (ngSubmit)="saveTask()" class="w-full">
+              <div class="space-y-6">
+                <div class="border-b border-gray-900/10 pb-6">
+                  <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+                    {{ editingTaskId ? 'Edit task' : 'Add new task' }}
+                  </h2>
+
+                  <div class="grid grid-cols-1 gap-y-6">
+                    <!-- Title -->
+                    <div>
+                      <label for="title" class="block text-sm font-medium text-gray-900 dark:text-gray-200">Title</label>
+                      <input type="text" id="title" formControlName="title"
+                             class="mt-2 block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-zinc-800 dark:text-white dark:ring-gray-700">
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                      <label for="description" class="block text-sm font-medium text-gray-900 dark:text-gray-200">Description</label>
+                      <textarea id="description" formControlName="description" rows="3"
+                                class="mt-2 block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-zinc-800 dark:text-white dark:ring-gray-700"></textarea>
+                    </div>
+
+                    <!-- Due Date -->
+                    <div>
+                      <label for="dueDate" class="block text-sm font-medium text-gray-900 dark:text-gray-200">Due Date</label>
+                      <input type="datetime-local" id="dueDate" formControlName="dueDate"
+                             class="mt-2 block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-zinc-800 dark:text-white dark:ring-gray-700">
+                    </div>
+
+                    <!-- Priority -->
+                    <div>
+                      <label for="priority" class="block text-sm font-medium text-gray-900 dark:text-gray-200">Priority</label>
+                      <select id="priority" formControlName="priority"
+                              class="mt-2 block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-zinc-800 dark:text-white dark:ring-gray-700">
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                      </select>
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                      <label for="status" class="block text-sm font-medium text-gray-900 dark:text-gray-200">Status</label>
+                      <select id="status" formControlName="status"
+                              class="mt-2 block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-zinc-800 dark:text-white dark:ring-gray-700">
+                        <option value="not_started">Not Started</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="mt-6 flex items-center justify-end gap-x-4">
+                <button type="submit"
+                        [disabled]="!taskForm.valid"
+                        class="px-5 py-2.5 bg-red-600 hover:bg-red-700 rounded-lg text-center font-medium block text-white disabled:opacity-50">
+                  Save
+                </button>
+                <button type="button"
+                        (click)="closeTaskModal()"
+                        class="text-sm font-semibold text-gray-900 dark:text-white hover:text-gray-700">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="w-1/5 py-10 px-10 min-w-min border-l border-gray-300 dark:border-zinc-700 hidden lg:block">
+      <app-right-sidebar></app-right-sidebar>
+    </aside>
+  </div>
+</body>
